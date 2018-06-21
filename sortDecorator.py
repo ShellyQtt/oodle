@@ -5,36 +5,34 @@ class sortCriteriaDecorator(sortFile):
         pass
 
 class sortNameDecorator(sortCriteriaDecorator):
-    def __init__(self, sortfile, name):#传入的sortfile是一个排序后文件列表
-        self.sortfile = sortfile
+
+    def __init__(self, fileDict, name):
+        super().__init__(fileDict)
         self.name = name
 
     def sort(self):
-        L = {}
-        list = []
-        for file in self.sortfile:
-            p = File(file)
-            # print(p.file_name())
-            if self.name in p.file_name():
-                list.append(file)
-        return list
+        newSortFile = {}
+        sortFile = self.fileDict.sort()
+        for file in sortFile:
+            if self.name in sortFile[file]['fileName']:
+                newSortFile[file] = sortFile[file]
+
+        return newSortFile
 
 class sortTypeDecorator(sortCriteriaDecorator):
-    def __init__(self, sortfile, type):
-        self.sortfile = sortfile
+
+    def __init__(self, fileDict, type):
+        super().__init__(fileDict)
         self.type = type
 
-    def sort(self):
-        L = {}
-        list = []
-        for file in self.sortfile:
-            p = File(file)
-            if self.type == p.filetype():
-                list.append(file)
-        return list
 
-# filename = getFileList("D://学习")
-# p = sortWithName(filename)
-# a = sortTypeDecorator(sortWithName(filename).sort(), ".txt")
-# list = a.sort()
-# print(list)
+    def sort(self):
+
+        newSortFile = {}
+        sortFile = self.fileDict.sort()
+        for file in sortFile:
+            if self.type == sortFile[file]['fileType']:
+                newSortFile[file] = sortFile[file]
+
+        return newSortFile
+

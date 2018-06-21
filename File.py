@@ -1,89 +1,73 @@
 import datetime
-import math
 import os
 class File(object):
-    def __init__(self,filename):
-        self.filename = filename
-    def file_name(self):
-        return getFileName(self.filename)
-    def filetime(self):
-        return getFileTime(self.filename)
-    def filesize(self):
-        return getFileSize(self.filename)
-    def filetype(self):
-        return getFileType(self.filename)
-    def filepath(self):
-        return getFilePath(self.filename)
 
-# def printFile(filelist):
-#     L = {}
-#     for file in filelist:
-#         p = File(file)
-#         L[file] = (p.file_name(), p.filetime(), p.filesize(), p.filetype())
-#     print('{:20s} {:24s} {:16s} {:10s}'.format('文件名', '修改时间', '文件大小', '文件类型'))
-#     for key, value in L.items():
-#         print('{:20s} {:30s} {:20s} {:10s}'.format(value[0], value[1], value[2], value[3]))
+    def __init__(self, fileName):
+        super().__init__()
+        self.fileName = fileName
 
-def getFileTime(filename):
-    mtime = os.path.getmtime(filename)
-    date = datetime.datetime.fromtimestamp(mtime)
-    return (date.strftime('%Y-%m-%d %H:%M:%S'))
+    def filename(self):
+        (filePath, tempFileName) = os.path.split(self.fileName)
+        return (tempFileName)
 
-def getFileSize(filename):
-    if (os.path.isfile(filename)):
-        size = os.stat(filename).st_size
-        sizename = str(round(size / 1024)) + 'KB'
-    else:
-        filelist = os.listdir(filename)
-        size = 0
-        for file in filelist:
-            fullpath = os.path.join(filename, file)
-            size += os.stat(fullpath).st_size
-        sizename = str(round(size / 1024)) + 'KB'
-    return (sizename)
+    def fileTime(self):
+        mTime = os.path.getmtime(self.fileName)
+        date = datetime.datetime.fromtimestamp(mTime)
+        return (date.strftime('%Y-%m-%d %H:%M:%S'))
 
-def getFileName(filename):
-    (filepath, tempfilename) = os.path.split(filename)
-    return (tempfilename)
+    def fileSize(self):
+        if (os.path.isfile(self.fileName)):
+            size = os.stat(self.fileName).st_size
+            sizeName = str(round(size / 1024)) + 'KB'
+        else:
+            fileList = os.listdir(self.fileName)
+            size = 0
+            for file in fileList:
+                fullPath = os.path.join(self.fileName, file)
+                size += os.stat(fullPath).st_size
+            sizeName = str(round(size / 1024)) + 'KB'
+        return (sizeName)
 
-def getFileType(filename):
-    if(os.path.isfile(filename)):
-        (filepath, tempfilename) = os.path.split(filename)
-        (shotname, extension) = os.path.splitext(tempfilename)
-        return (extension)
-    else:
-        return("文件夹")
 
-def getFileList(rootdir):
-    filelist = []
-    filenames = os.listdir(rootdir)
-    for filename in filenames:
-        file = os.path.join(rootdir, filename)
-        filelist.append(file)
-    return filelist  #filist 是一个包括路径的文件名的列表
+    def fileType(self):
+        if (os.path.isfile(self.fileName)):
+            (filePath, tempFileName) = os.path.split(self.fileName)
+            (shotName, extension) = os.path.splitext(tempFileName)
+            return (extension)
+        else:
+            return (" Dir")
 
-def pathToFilename(str):
-    s = str.replace('/', '')
-    a = s.replace(':', '')
-    return a
-# p = getFileList("D://学习")
-# L = {}
-# for file in p:
-#     p = File(file)
-#     L[file] = p.file_name()
-# k = sorted(L.items(), key=lambda L: L[1], reverse=True)
-# print()
-# print(p)
+    def filePath(self):
+        (filePath, tempFileName) = os.path.split(self.fileName)
+        return (filePath)
 
-def getFilePath(filename):
-    (filepath, tempfilename) = os.path.split(filename)
-    return (filepath)
+def getFileDict(rootDir):
+    fileDict = {}
+    fileList = os.listdir(rootDir)
+    for file in fileList:
+        fullPath = os.path.join(rootDir, file)
+        a = File(fullPath)
+        fileDict[file] = {'fileTime': a.fileTime(), 'fileSize': a.fileSize(), 'fileType': a.fileType(), 'fileName': a.filename()}
+    return fileDict
 
-# filelist = getFileList("D://学习")
-# data = printFile(filelist)
-# print('{:20s} {:24s} {:16s} {:10s}'.format('文件名','修改时间', '文件大小','文件类型'))
-# for key,value in data.items():
-#     print('{:20s} {:30s} {:20s} {:10s}'.format(value[0],value[1],value[2],value[3]))
+def pathToFileName(path):
+    return path.replace("\\", "")\
+        .replace(":", "")\
+        .replace("/", "")
 #
-# p = File("D://学习/星期五")
-# print(p.filesize())#返回的文件名等都是字符串类型的，给定的路径是文件夹的话后缀名为文件夹，大小不显示
+
+
+# L = {'qtt':{'ab':'1KB','bc':2},'wbh':{'ab':'2KB','cd':1}}
+# for key, value in L.items():
+#     print(value['ab'])
+# # k = set(L)
+# # print(k)
+# # L.pop('lxr')
+# for key in L:
+#     print(key)
+#
+# print(dict(sorted(L.items(), key=lambda x:x[1]['ab'][:-2])))
+
+# K = {'qtt':'cb','wbh':'bc','lh':'cd'}
+# a = L.keys[) - K.keys()
+# b = K.items() - L.items()

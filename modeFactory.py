@@ -1,63 +1,63 @@
-# from scanDir import *
 from File import *
 import pickle
 class mode(object):
-    def saveFile(self, filelist):
-        pass
-    def readFile(self, filepath):
+    def saveFile(self, rootDir):
         pass
 
+    def readFile(self, rootDir):
+        pass
 
 class log(mode):
-    def saveFile(self, filelist):#filelist是该路径下进行的排序的
-        # L = printFile(filelist)
-        L = {}
-        for file in filelist:
-            p = File(file)
-            L[file] = (p.file_name(), p.filetime(), p.filesize(), p.filetype())
-        a = File(filelist[0])
-        filepath = a.filepath()
-        str = pathToFilename(filepath)
-        with open(str + '.pk', 'wb')as f:
-                pickle.dump(L, f)
+    def saveFile(self, rootDir):
+        fileDict = getFileDict(rootDir)
+        logName = pathToFileName(rootDir)
+        with open(logName + '.pk', 'wb')as f:
+                pickle.dump(fileDict, f)
 
-    def readFile(self, filepath):
-        str = pathToFilename(filepath)
-        with open(str + '.pk', 'rb')as f:
+    def readFile(self, rootDir):
+        logName = pathToFileName(rootDir)
+        with open(logName + '.pk', 'rb')as f:
             data = pickle.load(f)
         return data
 
 
 class compare(mode):
-    def saveFile(self, filelist):
-        K = {}
-        a = File(filelist[0])
-        filepath = a.filepath()
-        comparelist = getFileList(filepath)
-        # K = printFile(comparelist)
-        for file in comparelist:
-            p = File(file)
-            K[file] = (p.file_name(), p.filetime(), p.filesize(), p.filetype())
-        str = pathToFilename(filepath)
-        with open(str + '.pk', 'rb')as f:
-            L = pickle.load(f)
+    def saveFile(self, rootDir):
+
+        compareDict = getFileDict(rootDir)
+        logName = pathToFileName(rootDir)
+        with open(logName + '.pk', 'rb')as f:
+            logDict = pickle.load(f)
+
+        logDictKey = set(logDict)
+        compareDictKey = set(compareDict)
+
+        removeFileKey = logDictKey - compareDictKey
+        commonFileKey = logDictKey & compareDictKey
+        addFileKey = compareDictKey - logDictKey
+
         data = {}
-        c = list(L.keys() - K.keys()) + list(K.keys() - L.keys())
-        for key, value in (L.items() - K.items()):
-            data[key] = value
-        for key, value in (K.items() - L.items()):
-            data[key] = value
-        for key, value in data.items():
-            if key in list(K.keys() - L.keys()):
-                a = File(key)
-                data[key] = (a.file_name(),'','','')
-            elif key in list(L.keys() - K.keys()):
-                data[key] = (key,'','','')
+        for commonFile in commonFileKey:
+            if compareDict[commonFile]['fileTime'] != logDict[commonFile]['fileTime']:
+                data[commonFile] = {'fileTime': compareDict[commonFile]['fileTime'],
+                                 'fileSize': compareDict[commonFile]['fileSize'],
+                                 'fileType': compareDict[commonFile]['fileType'],
+                                'fileName': commonFile + '  修改的文件'}
+
+
+        for removeFile in removeFileKey :
+            data[removeFile] = {'fileTime': logDict[removeFile]['fileTime'],
+                                'fileSize': logDict[removeFile]['fileSize'],
+                          'fileType': logDict[removeFile]['fileType'], 'fileName': removeFile + '  删除的文件'}
+        for addFile in addFileKey:
+            data[addFile] = {'fileTime': compareDict[addFile]['fileTime'],
+                             'fileSize': compareDict[addFile]['fileSize'],
+                          'fileType': compareDict[addFile]['fileType'], 'fileName': addFile + '  新增的文件'}
 
         return data
 
-    def readFile(self, filelist):
-        data = self.saveFile(filelist)
+    def readFile(self, rootDir):
+        data = self.saveFile(rootDir)
         return data
 
 
